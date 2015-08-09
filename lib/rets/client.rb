@@ -38,9 +38,9 @@ module OLDRETS
 
       http = OLDRETS::HTTP.new(args)
       http.request(:url => urls[:login], :check_response => true) do |response|
-        rets_attr = Nokogiri::XML(response.body).xpath("//OLDRETS")
+        rets_attr = Nokogiri::XML(response.body).xpath("//RETS")
         if rets_attr.empty?
-          raise OLDRETS::ResponseError, "Does not seem to be a OLDRETS server."
+          raise OLDRETS::ResponseError, "Does not seem to be a RETS server."
         end
 
         rets_attr.first.content.split("\n").each do |row|
