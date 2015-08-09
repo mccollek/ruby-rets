@@ -7,7 +7,7 @@ module OLDRETS
     attr_accessor :login_uri
 
     ##
-    # Creates a new HTTP instance which will automatically handle authenting to the OLDRETS server.
+    # Creates a new HTTP instance which will automatically handle authenting to the RETS server.
     def initialize(args)
       @headers = {"User-Agent" => "Ruby RETS/v#{OLDRETS::VERSION}"}
       @request_count = 0
@@ -88,10 +88,10 @@ module OLDRETS
     ##
     # Finds the ReplyText and ReplyCode attributes in the response
     #
-    # @param [Nokogiri::XML::NodeSet] rets <OLDRETS> attributes found
+    # @param [Nokogiri::XML::NodeSet] rets <RETS> attributes found
     #
-    # @return [String] OLDRETS ReplyCode
-    # @return [String] OLDRETS ReplyText
+    # @return [String] RETS ReplyCode
+    # @return [String] RETS ReplyText
     def get_rets_response(rets)
       code, text = nil, nil
       rets.attributes.each do |attr|
@@ -107,26 +107,26 @@ module OLDRETS
     end
 
     ##
-    # Handles managing the relevant OLDRETS-UA-Authorization headers
+    # Handles managing the relevant RETS-UA-Authorization headers
     #
     # @param [Hash] args
-    # @option args [String] :version OLDRETS Version
-    # @option args [String, Optional] :session_id OLDRETS Session ID
+    # @option args [String] :version RETS Version
+    # @option args [String, Optional] :session_id RETS Session ID
     def setup_ua_authorization(args)
-      # Most OLDRETS implementations don't care about OLDRETS-Version for OLDRETS-UA-Authorization.
+      # Most RETS implementations don't care about RETS-Version for RETS-UA-Authorization.
       # Because Rapattoni's does, will set and use it when possible, but otherwise will fake one.
-      # They also seem to require OLDRETS-Version even when it's not required by OLDRETS-UA-Authorization.
+      # They also seem to require RETS-Version even when it's not required by RETS-UA-Authorization.
       # Others, such as Offut/Innovia pass the header, but without a version attached.
-      @headers["OLDRETS-Version"] = args[:version]
+      @headers["RETS-Version"] = args[:version]
 
-      if @headers["OLDRETS-Version"] and @config[:useragent] and @config[:useragent][:password]
+      if @headers["RETS-Version"] and @config[:useragent] and @config[:useragent][:password]
         login = Digest::MD5.hexdigest("#{@config[:useragent][:name]}:#{@config[:useragent][:password]}")
-        @headers.merge!("OLDRETS-UA-Authorization" => "Digest #{Digest::MD5.hexdigest("#{login}::#{args[:session_id]}:#{@headers["OLDRETS-Version"]}")}")
+        @headers.merge!("RETS-UA-Authorization" => "Digest #{Digest::MD5.hexdigest("#{login}::#{args[:session_id]}:#{@headers["RETS-Version"]}")}")
       end
     end
 
     ##
-    # Sends a request to the OLDRETS server.
+    # Sends a request to the RETS server.
     #
     # @param [Hash] args
     # @option args [URI] :url URI to request data from
@@ -184,8 +184,8 @@ module OLDRETS
               key.strip!
               value.strip!
 
-              # If it's a OLDRETS-Session-ID, it needs to be shoved into the OLDRETS-UA-Authorization field
-              # Save the OLDRETS-Session-ID so it can be used with OLDRETS-UA-Authorization
+              # If it's a RETS-Session-ID, it needs to be shoved into the RETS-UA-Authorization field
+              # Save the RETS-Session-ID so it can be used with RETS-UA-Authorization
               if key.downcase == "rets-session-id"
                 @rets_data[:session_id] = value
                 self.setup_ua_authorization(@rets_data) if @rets_data[:version]
@@ -201,11 +201,11 @@ module OLDRETS
           end
 
           # Rather than returning HTTP 401 when User-Agent authentication is needed, Retsiq returns HTTP 200
-          # with OLDRETS error 20037. If we get a 20037, will let it pass through and handle it as if it was a HTTP 401.
+          # with RETS error 20037. If we get a 20037, will let it pass through and handle it as if it was a HTTP 401.
           rets_code = nil
           if response.code != "401" and ( response.code != "200" or args[:check_response] )
-            if response.body =~ /<OLDRETS/i
-              rets_code, text = self.get_rets_response(Nokogiri::XML(response.body).xpath("//OLDRETS").first)
+            if response.body =~ /<RETS/i
+              rets_code, text = self.get_rets_response(Nokogiri::XML(response.body).xpath("//RETS").first)
               unless rets_code == "20037" or rets_code == "0"
                 raise OLDRETS::APIError.new("#{rets_code}: #{text}", rets_code, text)
               end
@@ -261,7 +261,7 @@ module OLDRETS
             if response.header["rets-version"] and response.header["rets-version"] != ""
               @rets_data[:version] = response.header["rets-version"]
             else
-              @rets_data[:version] = "OLDRETS/1.7"
+              @rets_data[:version] = "RETS/1.7"
             end
 
             self.setup_ua_authorization(@rets_data)

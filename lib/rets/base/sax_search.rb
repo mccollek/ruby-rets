@@ -11,7 +11,7 @@ class OLDRETS::Base::SAXSearch < Nokogiri::XML::SAX::Document
     @current_tag = nil
 
     # Figure out if the request is a success
-    if tag == "OLDRETS"
+    if tag == "RETS"
       @rets_data[:code], @rets_data[:text] = attrs.first.last, attrs.last.last
       if @rets_data[:code] != "0" and @rets_data[:code] != "20201"
         raise OLDRETS::APIError.new("#{@rets_data[:code]}: #{@rets_data[:text]}", @rets_data[:code], @rets_data[:text])

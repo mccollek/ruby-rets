@@ -5,16 +5,16 @@ module OLDRETS
     URL_KEYS = {:getobject => true, :login => true, :logout => true, :search => true, :getmetadata => true}
 
     ##
-    # Attempts to login to a OLDRETS server.
+    # Attempts to login to a RETS server.
     # @param [Hash] args
-    # @option args [String] :url Login URL for the OLDRETS server
+    # @option args [String] :url Login URL for the RETS server
     # @option args [String] :username Username to authenticate with
     # @option args [String] :password Password to authenticate with
     # @option args [Symbol, Optional] :auth_mode When set to *:basic* will automatically use HTTP Basic authentication, skips a discovery request when initially connecting
     # @option args [Hash, Optional] :useragent Only necessary for User Agent authentication
     #   * :name [String, Optional] - Name to set the User-Agent to
-    #   * :password [String, Optional] - Password to use for OLDRETS-UA-Authorization
-    # @option args [String, Optional] :rets_version Forces OLDRETS-UA-Authorization on the first request if this and useragent name/password are set. Can be auto detected, but usually lets you bypass 1 - 2 additional authentication requests initially.
+    #   * :password [String, Optional] - Password to use for RETS-UA-Authorization
+    # @option args [String, Optional] :rets_version Forces RETS-UA-Authorization on the first request if this and useragent name/password are set. Can be auto detected, but usually lets you bypass 1 - 2 additional authentication requests initially.
     # @option args [Hash, Optional] :http Additional configuration for the HTTP requests
     #   * :verify_mode [Integer, Optional] How to verify the SSL certificate when connecting through HTTPS, either OpenSSL::SSL::VERIFY_PEER or OpenSSL::SSL::VERIFY_NONE, defaults to OpenSSL::SSL::VERIFY_NONE
     #   * :ca_file [String, Optional] Path to the CA certification file in PEM format

@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email       = ["zach.anker@gmail.com"]
   s.homepage    = "http://github.com/Placester/ruby-rets"
   s.summary     = "OLDRETS 1.x library for Ruby"
-  s.description = "Old Gem for pulling data from RETS (http://rets.org) servers. renamed from RETS to OLDRETS to avoid namespace conflicct with newer rets gem"
+  s.description = "Old Gem for pulling data from RETS (http://rets.org) servers. renamed from RETS to OLDRETS to avoid namespace conflict with newer rets gem"
 
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "ruby-rets"
