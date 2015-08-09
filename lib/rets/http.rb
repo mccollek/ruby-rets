@@ -2,14 +2,14 @@ require "cgi"
 require "net/https"
 require "digest"
 
-module RETS
+module OLDRETS
   class HTTP
     attr_accessor :login_uri
 
     ##
     # Creates a new HTTP instance which will automatically handle authenting to the OLDRETS server.
     def initialize(args)
-      @headers = {"User-Agent" => "Ruby OLDRETS/v#{RETS::VERSION}"}
+      @headers = {"User-Agent" => "Ruby RETS/v#{OLDRETS::VERSION}"}
       @request_count = 0
       @config = {:http => {}}.merge(args)
       @rets_data, @cookie_list = {}, {}
@@ -58,7 +58,7 @@ module RETS
       elsif @digest_type.empty?
         hash = Digest::MD5.hexdigest("#{first}:#{@digest["nonce"]}:#{second}")
       else
-        raise RETS::HTTPError, "Cannot determine auth type for server (#{@digest_type.join(",")})"
+        raise OLDRETS::HTTPError, "Cannot determine auth type for server (#{@digest_type.join(",")})"
       end
 
       http_digest = "Digest username=\"#{@config[:username]}\", "
@@ -207,11 +207,11 @@ module RETS
             if response.body =~ /<OLDRETS/i
               rets_code, text = self.get_rets_response(Nokogiri::XML(response.body).xpath("//OLDRETS").first)
               unless rets_code == "20037" or rets_code == "0"
-                raise RETS::APIError.new("#{rets_code}: #{text}", rets_code, text)
+                raise OLDRETS::APIError.new("#{rets_code}: #{text}", rets_code, text)
               end
 
             elsif !args[:check_response]
-              raise RETS::HTTPError.new("#{response.code}: #{response.message}", response.code, response.message)
+              raise OLDRETS::HTTPError.new("#{response.code}: #{response.message}", response.code, response.message)
             end
           end
 
@@ -223,7 +223,7 @@ module RETS
             return self.request(args)
 
           elsif response.code == "401" or rets_code == "20037"
-            raise RETS::Unauthorized, "Cannot login, check credentials" if ( @auth_mode and @retried_request ) or ( @retried_request and rets_code == "20037" )
+            raise OLDRETS::Unauthorized, "Cannot login, check credentials" if ( @auth_mode and @retried_request ) or ( @retried_request and rets_code == "20037" )
             @retried_request = true
 
             # We already have an auth mode, and the request wasn't retried.
@@ -253,7 +253,7 @@ module RETS
               end
 
               unless @auth_mode
-                raise RETS::HTTPError.new("Cannot authenticate, no known mode found", response.code)
+                raise OLDRETS::HTTPError.new("Cannot authenticate, no known mode found", response.code)
               end
             end
 

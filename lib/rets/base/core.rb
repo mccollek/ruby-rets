@@ -32,7 +32,7 @@ module OLDRETS
       # @raise [OLDRETS::HTTPError]
       def logout
         unless @urls[:logout]
-          raise RETS::CapabilityNotFound.new("No Logout capability found for given user.")
+          raise OLDRETS::CapabilityNotFound.new("No Logout capability found for given user.")
         end
 
         @http.request(:url => @urls[:logout])
@@ -70,13 +70,13 @@ module OLDRETS
         raise ArgumentError, "No block passed" unless block_given?
 
         unless @urls[:getmetadata]
-          raise RETS::CapabilityNotFound.new("No GetMetadata capability found for given user.")
+          raise OLDRETS::CapabilityNotFound.new("No GetMetadata capability found for given user.")
         end
 
         @request_size, @request_hash, @rets_data = nil, nil, nil
         @http.request(:url => @urls[:getmetadata], :read_timeout => args[:read_timeout], :params => {:Format => :COMPACT, :Type => args[:type], :ID => args[:id]}).tap do |response|
-          stream = RETS::StreamHTTP.new(response)
-          sax = RETS::Base::SAXMetadata.new(block)
+          stream = OLDRETS::StreamHTTP.new(response)
+          sax = OLDRETS::Base::SAXMetadata.new(block)
 
           Nokogiri::XML::SAX::Parser.new(sax).parse_io(stream)
 
@@ -115,7 +115,7 @@ module OLDRETS
         raise ArgumentError, "No block passed" unless block_given?
 
         unless @urls[:getobject]
-          raise RETS::CapabilityNotFound.new("No GetObject capability found for given user.")
+          raise OLDRETS::CapabilityNotFound.new("No GetObject capability found for given user.")
         end
 
         req = {:url => @urls[:getobject], :read_timeout => args[:read_timeout], :headers => {}}
@@ -133,14 +133,14 @@ module OLDRETS
           @request_size, @request_hash = body.length, Digest::SHA1.hexdigest(body)
 
           # Make sure we aren't erroring
-          if body =~ /(<OLDRETS(.+)\>)/
-            code, text = @http.get_rets_response(Nokogiri::XML($1).xpath("//OLDRETS").first)
+          if body =~ /(<RETS(.+)\>)/
+            code, text = @http.get_rets_response(Nokogiri::XML($1).xpath("//RETS").first)
             @rets_data = {:code => code, :text => text}
 
             if code == "20403"
               return
             else
-              raise RETS::APIError.new("#{code}: #{text}", code, text)
+              raise OLDRETS::APIError.new("#{code}: #{text}", code, text)
             end
           end
 
@@ -218,7 +218,7 @@ module OLDRETS
         raise ArgumentError, "No block found" unless block_given?
 
         unless @urls[:search]
-          raise RETS::CapabilityNotFound.new("Cannot find URL for Search call")
+          raise OLDRETS::CapabilityNotFound.new("Cannot find URL for Search call")
         end
 
         req = {:url => @urls[:search], :read_timeout => args[:read_timeout]}
@@ -235,7 +235,7 @@ module OLDRETS
         @request_size, @request_hash, @rets_data = nil, nil, nil
         @http.request(req).tap do |response|
 #          stream = OLDRETS::StreamHTTP.new(response)
-          sax = RETS::Base::SAXSearch.new(block)
+          sax = OLDRETS::Base::SAXSearch.new(block)
 
           Nokogiri::XML::SAX::Parser.new(sax).parse(response.body)
 
