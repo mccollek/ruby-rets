@@ -1,4 +1,4 @@
-path = File.expand_path("../rets", __FILE__)
+path = File.expand_path('../old_rets', __FILE__)
 require "#{path}/version"
 require "#{path}/exceptions"
 require "#{path}/client"

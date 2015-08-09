@@ -1,5 +1,5 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
-require "rets/version.rb"
+require "old_rets/version.rb"
 
 Gem::Specification.new do |s|
   s.name        = "ruby-rets"
