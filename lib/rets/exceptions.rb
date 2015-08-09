@@ -1,4 +1,4 @@
-module RETS
+module OLDRETS
   ##
   # Generic module that provides access to the code and text separately of the exception
   module ReplyErrors
@@ -11,7 +11,7 @@ module RETS
   end
 
   ##
-  # RETS server replied to a request with an error of some sort.
+  # OLDRETS server replied to a request with an error of some sort.
   class APIError < StandardError
     include ReplyErrors
   end

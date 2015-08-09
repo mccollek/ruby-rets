@@ -1,5 +1,5 @@
 # SAX parser for the Search API call.
-class RETS::Base::SAXSearch < Nokogiri::XML::SAX::Document
+class OLDRETS::Base::SAXSearch < Nokogiri::XML::SAX::Document
   attr_reader :rets_data
 
   def initialize(block)
@@ -11,10 +11,10 @@ class RETS::Base::SAXSearch < Nokogiri::XML::SAX::Document
     @current_tag = nil
 
     # Figure out if the request is a success
-    if tag == "RETS"
+    if tag == "OLDRETS"
       @rets_data[:code], @rets_data[:text] = attrs.first.last, attrs.last.last
       if @rets_data[:code] != "0" and @rets_data[:code] != "20201"
-        raise RETS::APIError.new("#{@rets_data[:code]}: #{@rets_data[:text]}", @rets_data[:code], @rets_data[:text])
+        raise OLDRETS::APIError.new("#{@rets_data[:code]}: #{@rets_data[:text]}", @rets_data[:code], @rets_data[:text])
       end
 
     # Determine the separator for data

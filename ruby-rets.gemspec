@@ -3,13 +3,13 @@ require "rets/version.rb"
 
 Gem::Specification.new do |s|
   s.name        = "ruby-rets"
-  s.version     = RETS::VERSION
+  s.version     = OLDRETS::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Zachary Anker"]
+  s.authors     = ["Zachary Anker, Jason Dew, Karl McCollester"]
   s.email       = ["zach.anker@gmail.com"]
   s.homepage    = "http://github.com/Placester/ruby-rets"
-  s.summary     = "RETS 1.x library for Ruby"
-  s.description = "Gem for pulling data from RETS (http://rets.org) servers."
+  s.summary     = "OLDRETS 1.x library for Ruby"
+  s.description = "Old Gem for pulling data from RETS (http://rets.org) servers. renamed from RETS to OLDRETS to avoid namespace conflicct with newer rets gem"
 
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "ruby-rets"

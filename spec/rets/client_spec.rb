@@ -1,16 +1,16 @@
 require "spec_helper"
 
-describe RETS::Client do
+describe OLDRETS::Client do
   include Support::ResponseMock
 
-  it "raises a ResponseError for non-RETS responses" do
+  it "raises a ResponseError for non-OLDRETS responses" do
     mock_response('<html><body>Foo Bar</body></html')
-    lambda { RETS::Client.login(:url => "http://foobar.com/login/login.bar") }.should raise_error(RETS::ResponseError)
+    lambda { OLDRETS::Client.login(:url => "http://foobar.com/login/login.bar") }.should raise_error(OLDRETS::ResponseError)
   end
 
   it "raises an APIError if the ReplyCode is != 0 and != 20037" do
-    mock_response('<RETS ReplyCode="20000" replytext="Failure message goes here."></RETS>')
-    lambda { RETS::Client.login(:url => "http://foobar.com/login/login.bar") }.should raise_error(RETS::APIError)
+    mock_response('<OLDRETS ReplyCode="20000" replytext="Failure message goes here."></OLDRETS>')
+    lambda { OLDRETS::Client.login(:url => "http://foobar.com/login/login.bar") }.should raise_error(OLDRETS::APIError)
   end
 
   it "correctly passes data to the HTTP class" do
@@ -18,17 +18,17 @@ describe RETS::Client do
     http_mock.should_receive(:request).with(hash_including(:url => URI("http://foobar.com/login/login.bar")))
     http_mock.should_receive(:login_uri=).with(URI("http://foobar.com/login/login.bar"))
 
-    RETS::HTTP.stub(:new).with(hash_including(:username => "foo", :password => "bar")).and_return(http_mock)
+    OLDRETS::HTTP.stub(:new).with(hash_including(:username => "foo", :password => "bar")).and_return(http_mock)
 
-    client = RETS::Client.login(:url => "http://foobar.com/login/login.bar", :username => "foo", :password => "bar")
-    client.should be_a_kind_of(RETS::Base::Core)
+    client = OLDRETS::Client.login(:url => "http://foobar.com/login/login.bar", :username => "foo", :password => "bar")
+    client.should be_a_kind_of(OLDRETS::Base::Core)
   end
 
   context "parses capability format" do
     it "spaces with absolute paths" do
-      mock_response("<RETS ReplyCode=\"0\" ReplyText=\"Operation Successful\">\n<RETS-RESPONSE>\nBroker = FOO123\nMemberName = John Doe\nMetadataVersion = 5.00.000\nMinMetadataVersion = 5.00.000\nMetadataTimestamp = Wed, 1 June 2011 09:00:00 GMT\nMinMetadataTimestamp = Wed, 1 June 2011 09:00:00 GMT\nUser = BAR123\nLogin = http://foobar.com:1234/rets/login\nLogout = http://foobar.com:1234/rets/logout\nSearch = http://foobar.com:1234/rets/search\nGetMetadata = http://foobar.com:1234/rets/getmetadata\nGetObject = http://foobar.com:1234/rets/getobject\nTimeoutSeconds = 1800\n</RETS-RESPONSE>\n</RETS>")
+      mock_response("<OLDRETS ReplyCode=\"0\" ReplyText=\"Operation Successful\">\n<OLDRETS-RESPONSE>\nBroker = FOO123\nMemberName = John Doe\nMetadataVersion = 5.00.000\nMinMetadataVersion = 5.00.000\nMetadataTimestamp = Wed, 1 June 2011 09:00:00 GMT\nMinMetadataTimestamp = Wed, 1 June 2011 09:00:00 GMT\nUser = BAR123\nLogin = http://foobar.com:1234/rets/login\nLogout = http://foobar.com:1234/rets/logout\nSearch = http://foobar.com:1234/rets/search\nGetMetadata = http://foobar.com:1234/rets/getmetadata\nGetObject = http://foobar.com:1234/rets/getobject\nTimeoutSeconds = 1800\n</OLDRETS-RESPONSE>\n</OLDRETS>")
 
-      client = RETS::Client.login(:url => "http://foobar.com:1234/rets/login")
+      client = OLDRETS::Client.login(:url => "http://foobar.com:1234/rets/login")
       urls = client.instance_variable_get(:@urls)
       urls.should have(5).items
       urls[:login].should == URI("http://foobar.com:1234/rets/login")
@@ -39,9 +39,9 @@ describe RETS::Client do
     end
 
     it "no spaces with absolute paths" do
-      mock_response("<RETS ReplyCode=\"0\" ReplyText=\"Operation Successful\">\n<RETS-RESPONSE>\nBroker=FOO123\nMemberName=John Doe\nMetadataVersion=5.00.000\nMinMetadataVersion=5.00.000\nMetadataTimestamp=Wed, 1 June 2011 09:00:00 GMT\nMinMetadataTimestamp=Wed, 1 June 2011 09:00:00 GMT\nUser=BAR123\nLogin=http://foobar.com:1234/rets/login\nLogout=http://foobar.com:1234/rets/logout\nSearch=http://foobar.com:1234/rets/search\nGetMetadata=http://foobar.com:1234/rets/getmetadata\nGetObject=http://foobar.com:1234/rets/getobject\nTimeoutSeconds=18000\n</RETS-RESPONSE>\n</RETS>")
+      mock_response("<OLDRETS ReplyCode=\"0\" ReplyText=\"Operation Successful\">\n<OLDRETS-RESPONSE>\nBroker=FOO123\nMemberName=John Doe\nMetadataVersion=5.00.000\nMinMetadataVersion=5.00.000\nMetadataTimestamp=Wed, 1 June 2011 09:00:00 GMT\nMinMetadataTimestamp=Wed, 1 June 2011 09:00:00 GMT\nUser=BAR123\nLogin=http://foobar.com:1234/rets/login\nLogout=http://foobar.com:1234/rets/logout\nSearch=http://foobar.com:1234/rets/search\nGetMetadata=http://foobar.com:1234/rets/getmetadata\nGetObject=http://foobar.com:1234/rets/getobject\nTimeoutSeconds=18000\n</OLDRETS-RESPONSE>\n</OLDRETS>")
 
-      client = RETS::Client.login(:url => "http://foobar.com:1234/rets/login")
+      client = OLDRETS::Client.login(:url => "http://foobar.com:1234/rets/login")
       urls = client.instance_variable_get(:@urls)
       urls.should have(5).items
       urls[:login].should == URI("http://foobar.com:1234/rets/login")
@@ -52,9 +52,9 @@ describe RETS::Client do
     end
 
     it "no spaces with relative paths" do
-      mock_response("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<RETS ReplyCode=\"0\" ReplyText=\"Success. Reference ID: AAAAAA-BBBB-3333-2222-CCCCCCCC\">\n  <RETS-RESPONSE>\nMemberName=Jane Doe\nUser=1234\nBroker=BAR1234\nMetadataVersion=10.25.63114\nMetadataTimeStamp=Wed, 25 Jan 2012 20:00:55 GMT\nMinMetadataTimeStamp=Wed, 25 Jan 2012 20:00:55 GMT\nTimeoutSeconds=18000\nChangePassword=/ChangePassword.asmx/ChangePassword\nGetObject=/GetObject.asmx/GetObject\nLogin=/Login.asmx/Login\nLogout=/Logout.asmx/Logout\nSearch=/Search.asmx/Search\nGetMetadata=/GetMetadata.asmx/GetMetadata\n</RETS-RESPONSE>\n</RETS>")
+      mock_response("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<OLDRETS ReplyCode=\"0\" ReplyText=\"Success. Reference ID: AAAAAA-BBBB-3333-2222-CCCCCCCC\">\n  <OLDRETS-RESPONSE>\nMemberName=Jane Doe\nUser=1234\nBroker=BAR1234\nMetadataVersion=10.25.63114\nMetadataTimeStamp=Wed, 25 Jan 2012 20:00:55 GMT\nMinMetadataTimeStamp=Wed, 25 Jan 2012 20:00:55 GMT\nTimeoutSeconds=18000\nChangePassword=/ChangePassword.asmx/ChangePassword\nGetObject=/GetObject.asmx/GetObject\nLogin=/Login.asmx/Login\nLogout=/Logout.asmx/Logout\nSearch=/Search.asmx/Search\nGetMetadata=/GetMetadata.asmx/GetMetadata\n</OLDRETS-RESPONSE>\n</OLDRETS>")
 
-      client = RETS::Client.login(:url => "http://foobar.com/Login.asmx/Login")
+      client = OLDRETS::Client.login(:url => "http://foobar.com/Login.asmx/Login")
       urls = client.instance_variable_get(:@urls)
       urls.should have(5).items
       urls[:login].should == URI("http://foobar.com/Login.asmx/Login")
@@ -65,9 +65,9 @@ describe RETS::Client do
     end
 
     it "spaces with relative paths" do
-      mock_response("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<RETS ReplyCode=\"0\" ReplyText=\"Success. Reference ID: AAAAAA-BBBB-3333-2222-CCCCCCCC\">\n  <RETS-RESPONSE>\nMemberName = Jane Doe\nUser = 1234\nBroker = BAR1234\nMetadataVersion = 10.25.63114\nMetadataTimeStamp = Wed, 25 Jan 2012 20:00:55 GMT\nMinMetadataTimeStamp = Wed, 25 Jan 2012 20:00:55 GMT\nTimeoutSeconds = 18000\nChangePassword = /ChangePassword.asmx/ChangePassword\nGetObject = /GetObject.asmx/GetObject\nLogin = /Login.asmx/Login\nLogout = /Logout.asmx/Logout\nSearch = /Search.asmx/Search\nGetMetadata = /GetMetadata.asmx/GetMetadata\n</RETS-RESPONSE>\n</RETS>")
+      mock_response("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<OLDRETS ReplyCode=\"0\" ReplyText=\"Success. Reference ID: AAAAAA-BBBB-3333-2222-CCCCCCCC\">\n  <OLDRETS-RESPONSE>\nMemberName = Jane Doe\nUser = 1234\nBroker = BAR1234\nMetadataVersion = 10.25.63114\nMetadataTimeStamp = Wed, 25 Jan 2012 20:00:55 GMT\nMinMetadataTimeStamp = Wed, 25 Jan 2012 20:00:55 GMT\nTimeoutSeconds = 18000\nChangePassword = /ChangePassword.asmx/ChangePassword\nGetObject = /GetObject.asmx/GetObject\nLogin = /Login.asmx/Login\nLogout = /Logout.asmx/Logout\nSearch = /Search.asmx/Search\nGetMetadata = /GetMetadata.asmx/GetMetadata\n</OLDRETS-RESPONSE>\n</OLDRETS>")
 
-      client = RETS::Client.login(:url => "http://foobar.com/Login.asmx/Login")
+      client = OLDRETS::Client.login(:url => "http://foobar.com/Login.asmx/Login")
       urls = client.instance_variable_get(:@urls)
       urls.should have(5).items
       urls[:login].should == URI("http://foobar.com/Login.asmx/Login")

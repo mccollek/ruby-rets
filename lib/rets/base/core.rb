@@ -1,20 +1,20 @@
-# For more information on what the possible values of fields that are passed to the RETS server can be, see {http://www.rets.org/documentation}.
-module RETS
+# For more information on what the possible values of fields that are passed to the OLDRETS server can be, see {http://www.rets.org/documentation}.
+module OLDRETS
   module Base
     class Core
       GET_OBJECT_DATA = ["object-id", "description", "content-id", "content-description", "location", "content-type", "preferred"]
 
-      # Can be called after any {RETS::Base::Core} call that hits the RETS Server.
+      # Can be called after any {OLDRETS::Base::Core} call that hits the OLDRETS Server.
       # @return [String] How big the request was
       attr_reader :request_size
 
-      # Can be called after any {RETS::Base::Core} call that hits the RETS Server.
+      # Can be called after any {OLDRETS::Base::Core} call that hits the OLDRETS Server.
       # @return [String] SHA1 hash of the request
       attr_reader :request_hash
 
-      # Can be called after any {RETS::Base::Core} call that hits the RETS Server.
+      # Can be called after any {OLDRETS::Base::Core} call that hits the OLDRETS Server.
       # @return [Hash]
-      #   Gives access to the miscellaneous RETS data, such as reply text, code, delimiter, count and so on depending on the API call made.
+      #   Gives access to the miscellaneous OLDRETS data, such as reply text, code, delimiter, count and so on depending on the API call made.
       #   * *text* (String) - Reply text from the server
       #   * *code* (String) - Reply code from the server
       attr_reader :rets_data
@@ -25,11 +25,11 @@ module RETS
       end
 
       ##
-      # Attempts to logout of the RETS server.
+      # Attempts to logout of the OLDRETS server.
       #
-      # @raise [RETS::CapabilityNotFound]
-      # @raise [RETS::APIError]
-      # @raise [RETS::HTTPError]
+      # @raise [OLDRETS::CapabilityNotFound]
+      # @raise [OLDRETS::APIError]
+      # @raise [OLDRETS::HTTPError]
       def logout
         unless @urls[:logout]
           raise RETS::CapabilityNotFound.new("No Logout capability found for given user.")
@@ -39,7 +39,7 @@ module RETS
       end
 
       ##
-      # Whether the RETS server has the requested capability.
+      # Whether the OLDRETS server has the requested capability.
       #
       # @param [Symbol] type Lowercase of the capability, "getmetadata", "getobject" and so on
       # @return [Boolean]
@@ -48,7 +48,7 @@ module RETS
       end
 
       ##
-      # Requests metadata from the RETS server.
+      # Requests metadata from the OLDRETS server.
       #
       # @param [Hash] args
       # @option args [String] :type Metadata to request, the same value if you were manually making the request, "METADATA-SYSTEM", "METADATA-CLASS" and so on
@@ -60,9 +60,9 @@ module RETS
       # @yieldparam [Hash] :attrs Attributes of the data, generally *Version*, *Date* and *Resource* but can vary depending on what metadata you requested
       # @yieldparam [Array] :metadata Array of hashes with metadata info
       #
-      # @raise [RETS::CapabilityNotFound]
-      # @raise [RETS::APIError]
-      # @raise [RETS::HTTPError]
+      # @raise [OLDRETS::CapabilityNotFound]
+      # @raise [OLDRETS::APIError]
+      # @raise [OLDRETS::HTTPError]
       # @see #rets_data
       # @see #request_size
       # @see #request_hash
@@ -86,7 +86,7 @@ module RETS
       end
 
       ##
-      # Requests an object from the RETS server.
+      # Requests an object from the OLDRETS server.
       #
       # @param [Hash] args
       # @option args [String] :resource Resource to load, typically *Property*
@@ -105,9 +105,9 @@ module RETS
       #     * *location* (String, Optional) - Where the file is located, only returned is *location* is true
       # @yieldparam [String, Optional] :content Content for the object, not called when *location* is set
       #
-      # @raise [RETS::CapabilityNotFound]
-      # @raise [RETS::APIError]
-      # @raise [RETS::HTTPError]
+      # @raise [OLDRETS::CapabilityNotFound]
+      # @raise [OLDRETS::APIError]
+      # @raise [OLDRETS::HTTPError]
       # @see #rets_data
       # @see #request_size
       # @see #request_hash
@@ -133,8 +133,8 @@ module RETS
           @request_size, @request_hash = body.length, Digest::SHA1.hexdigest(body)
 
           # Make sure we aren't erroring
-          if body =~ /(<RETS(.+)\>)/
-            code, text = @http.get_rets_response(Nokogiri::XML($1).xpath("//RETS").first)
+          if body =~ /(<OLDRETS(.+)\>)/
+            code, text = @http.get_rets_response(Nokogiri::XML($1).xpath("//OLDRETS").first)
             @rets_data = {:code => code, :text => text}
 
             if code == "20403"
@@ -191,26 +191,26 @@ module RETS
       end
 
       ##
-      # Searches the RETS server for data.
+      # Searches the OLDRETS server for data.
       #
       # @param [Hash] args
       # @option args [String] :search_type What to search on, typically *Property*, *Office* or *Agent*
-      # @option args [String] :class What class of data to return, varies between RETS implementations and can be anything from *1* to *ResidentialProperty*
+      # @option args [String] :class What class of data to return, varies between OLDRETS implementations and can be anything from *1* to *ResidentialProperty*
       # @option args [String] :query How to filter data, should be unescaped as CGI::escape will be called on the string
       # @option args [Symbol, Optional] :count_mode Either *:only* to return just the total records found or *:both* to get count and records returned
       # @option args [Integer, Optional] :limit Limit total records returned
       # @option args [Integer, Optional] :offset Offset to start returning records from
-      # @option args [Array, Optional] :select Restrict the fields the RETS server returns
+      # @option args [Array, Optional] :select Restrict the fields the OLDRETS server returns
       # @option args [Boolean, Optional] :standard_names Whether to use standard names for all fields
       # @option args [String, Optional] :restricted String to show in place of a field value for any restricted fields the user cannot see
       # @option args [Integer, Optional] :read_timeout How long to wait for data from the socket before giving up
       #
-      # @yield Called for every <DATA></DATA> group from the RETS server
-      # @yieldparam [Hash] :data One record of data from the RETS server
+      # @yield Called for every <DATA></DATA> group from the OLDRETS server
+      # @yieldparam [Hash] :data One record of data from the OLDRETS server
       #
-      # @raise [RETS::CapabilityNotFound]
-      # @raise [RETS::APIError]
-      # @raise [RETS::HTTPError]
+      # @raise [OLDRETS::CapabilityNotFound]
+      # @raise [OLDRETS::APIError]
+      # @raise [OLDRETS::HTTPError]
       # @see #rets_data
       # @see #request_size
       # @see #request_hash
@@ -234,7 +234,7 @@ module RETS
 
         @request_size, @request_hash, @rets_data = nil, nil, nil
         @http.request(req).tap do |response|
-#          stream = RETS::StreamHTTP.new(response)
+#          stream = OLDRETS::StreamHTTP.new(response)
           sax = RETS::Base::SAXSearch.new(block)
 
           Nokogiri::XML::SAX::Parser.new(sax).parse(response.body)

@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe RETS::Base::Core do
+describe OLDRETS::Base::Core do
   before :all do
     @uri = URI("http://foobar.com/api/page")
     @response_path = File.expand_path("../../../responses", __FILE__)
@@ -17,23 +17,23 @@ describe RETS::Base::Core do
   it "attempts to logout" do
     http = mock("HTTP")
     http.should_receive(:request).with(:url => @uri)
-    RETS::Base::Core.new(http, {:logout => @uri}).logout
+    OLDRETS::Base::Core.new(http, {:logout => @uri}).logout
   end
 
   it "returns based on capability" do
-    client = RETS::Base::Core.new(nil, {:logout => @uri})
+    client = OLDRETS::Base::Core.new(nil, {:logout => @uri})
     client.has_capability?(:logout).should be_true
     client.has_capability?(:search).should be_false
   end
 
   context "get_metadata" do
     it "successfully loads" do
-      RETS::StreamHTTP.stub(:new).and_return(StringIO.new(load_file("get_metadata", "success")))
+      OLDRETS::StreamHTTP.stub(:new).and_return(StringIO.new(load_file("get_metadata", "success")))
 
       http = mock("HTTP")
       http.should_receive(:request).with(hash_including(:url => @uri, :read_timeout => nil, :params => {:Format => :COMPACT, :Type => "Foo", :ID => "*"})).and_yield(nil)
 
-      client = RETS::Base::Core.new(http, {:getmetadata => @uri})
+      client = OLDRETS::Base::Core.new(http, {:getmetadata => @uri})
       client.get_metadata(:type => "Foo", :id => "*") do |type, attrs, data|
         type.should == "TABLE"
         attrs["Version"].should == "0.0.2"
@@ -55,14 +55,14 @@ describe RETS::Base::Core do
     end
 
     it "raises an error" do
-      RETS::StreamHTTP.stub(:new).and_return(StringIO.new(load_file("get_metadata", "error")))
+      OLDRETS::StreamHTTP.stub(:new).and_return(StringIO.new(load_file("get_metadata", "error")))
 
       http = mock("HTTP")
       http.should_receive(:request).with(anything).and_yield(nil)
 
-      client = RETS::Base::Core.new(http, {:getmetadata => @uri})
+      client = OLDRETS::Base::Core.new(http, {:getmetadata => @uri})
 
-      lambda { client.get_metadata({}) {} }.should raise_error(RETS::APIError) do |e|
+      lambda { client.get_metadata({}) {} }.should raise_error(OLDRETS::APIError) do |e|
         e.code.should == "20000"
         e.text.should == "Error message goes here."
       end
@@ -84,7 +84,7 @@ describe RETS::Base::Core do
 
         data = []
 
-        client = RETS::Base::Core.new(http, {:getobject => @uri})
+        client = OLDRETS::Base::Core.new(http, {:getobject => @uri})
         client.get_object(:resource => "Property", :type => "Photo", :id => "0:0:*", :accept => ["a/b", "c/d", "e/f"]) do |headers, content|
           data.push(:headers => headers, :content => content)
         end
@@ -115,7 +115,7 @@ describe RETS::Base::Core do
 
         data = []
 
-        client = RETS::Base::Core.new(http, {:getobject => @uri})
+        client = OLDRETS::Base::Core.new(http, {:getobject => @uri})
         client.get_object(:resource => "Property", :type => "Photo", :id => "0:0:*", :location => true) do |headers|
           data.push(headers)
         end
@@ -140,13 +140,13 @@ describe RETS::Base::Core do
         http = mock("HTTP")
         http.should_receive(:request).with(anything).and_yield(response)
         http.stub(:get_rets_response) do |args|
-          RETS::HTTP.new({}).get_rets_response(args)
+          OLDRETS::HTTP.new({}).get_rets_response(args)
         end
 
-        client = RETS::Base::Core.new(http, {:getobject => @uri})
+        client = OLDRETS::Base::Core.new(http, {:getobject => @uri})
         lambda {
           client.get_object(:resource => "Property", :type => "Photo", :id => "0:0:*") {|a, b|}
-        }.should raise_error(RETS::APIError) do |e|
+        }.should raise_error(OLDRETS::APIError) do |e|
           e.code.should == "20000"
           e.text.should == "Error message goes here."
         end
@@ -167,7 +167,7 @@ describe RETS::Base::Core do
         http = mock("HTTP")
         http.should_receive(:request).with(hash_including(:url => @uri, :headers => {"Accept" => "image/png,image/gif,image/jpeg"}, :params => {:Resource => "Property", :Type => "Photo", :Location => 0, :ID => "0:0:*"})).and_yield(response)
 
-        client = RETS::Base::Core.new(http, {:getobject => @uri})
+        client = OLDRETS::Base::Core.new(http, {:getobject => @uri})
         client.get_object(:resource => "Property", :type => "Photo", :id => "0:0:*") do |headers, content|
           headers.should == {"content-type" => "image/jpg", "content-id" => "1234", "object-id" => "1"}
           content.should == "Quick\r\nObject\r\nData\r\n2"
@@ -189,7 +189,7 @@ describe RETS::Base::Core do
         http = mock("HTTP")
         http.should_receive(:request).with(hash_including(:url => @uri, :headers => {"Accept" => "image/png,image/gif,image/jpeg"}, :params => {:Resource => "Property", :Type => "Photo", :Location => 1, :ID => "0:0:*"})).and_yield(response)
 
-        client = RETS::Base::Core.new(http, {:getobject => @uri})
+        client = OLDRETS::Base::Core.new(http, {:getobject => @uri})
         client.get_object(:resource => "Property", :type => "Photo", :id => "0:0:*", :location => true) do |headers|
           headers.should == {"content-type" => "image/png", "content-id" => "1234", "object-id" => "1", "description" => "Foo Bar", "location" => "http://foobar.com/images/1234_5678.png"}
         end
@@ -211,10 +211,10 @@ describe RETS::Base::Core do
         http.should_receive(:request).with(anything).and_yield(response)
         http.should_receive(:get_rets_response).and_return(["20000", "Error message goes here."])
 
-        client = RETS::Base::Core.new(http, {:getobject => @uri})
+        client = OLDRETS::Base::Core.new(http, {:getobject => @uri})
         lambda {
           client.get_object(:resource => "Property", :type => "Photo", :id => "0:0:*") {|a, b|}
-        }.should raise_error(RETS::APIError) do |e|
+        }.should raise_error(OLDRETS::APIError) do |e|
           e.code.should == "20000"
           e.text.should == "Error message goes here."
         end
@@ -224,14 +224,14 @@ describe RETS::Base::Core do
 
   context "search" do
     it "successfully loads data" do
-      RETS::StreamHTTP.stub(:new).and_return(StringIO.new(load_file("search", "success")))
+      OLDRETS::StreamHTTP.stub(:new).and_return(StringIO.new(load_file("search", "success")))
 
       http = mock("HTTP")
       http.should_receive(:request).with(hash_including(:url => @uri, :params => {:SearchType => "Property", :QueryType => "DMQL2", :Format => "COMPACT-DECODED", :Class => "RES", :Limit => 5, :Offset => 10, :RestrictedIndicator => "####", :Select => "A,B,C", :StandardNames => 1, :Count => 1, :Query => "(FOO=BAR)"})).and_yield(nil)
 
       data = []
 
-      client = RETS::Base::Core.new(http, {:search => @uri})
+      client = OLDRETS::Base::Core.new(http, {:search => @uri})
       client.search(:search_type => "Property", :query => "(FOO=BAR)", :class => "RES", :limit => 5, :offset => 10, :restricted => "####", :select => ["A", "B", "C"], :standard_names => true, :count_mode => :both) do |row|
         data.push(row)
       end
@@ -245,13 +245,13 @@ describe RETS::Base::Core do
 
 
     it "raises an error" do
-      RETS::StreamHTTP.stub(:new).and_return(StringIO.new(load_file("search", "error")))
+      OLDRETS::StreamHTTP.stub(:new).and_return(StringIO.new(load_file("search", "error")))
 
       http = mock("HTTP")
       http.should_receive(:request).with(anything).and_yield(nil)
 
-      client = RETS::Base::Core.new(http, {:search => @uri})
-      lambda { client.search({}) {} }.should raise_error(RETS::APIError) do |e|
+      client = OLDRETS::Base::Core.new(http, {:search => @uri})
+      lambda { client.search({}) {} }.should raise_error(OLDRETS::APIError) do |e|
         e.code.should == "20000"
         e.text.should == "Error message goes here."
       end
